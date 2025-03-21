@@ -6,29 +6,30 @@
   <title>尹云茹的自我介紹</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 卡片效果（移除傾斜和浮起，保留光暈） */
+    /* 卡片效果 */
     .floating-card {
       background: rgba(14, 12, 12, 0.9);
       box-shadow: 0 0 20px rgba(41, 2, 138, 0.5);
-      border-radius: 0.9rem; /* 設置圓角為 12px */
+      border-radius: 0.9rem;
     }
-    /* 照片效果（移除放大） */
+    /* 照片效果 */
     .photo-hover {
-      transition: transform 0.3s ease; /* 添加平滑過渡效果 */
+      transition: transform 0.3s ease;
     }
     .photo-hover:hover {
-      transform: scale(1.05); /* 鼠標懸停時放大 5% */
+      transform: scale(1.05);
     }
     /* 按鈕波紋效果 */
     .glow-button {
       position: relative;
       overflow: hidden;
-      padding: 0; /* 移除內邊距，讓圖標居中 */
-      background: none; /* 移除背景色 */
-      border: none; /* 移除邊框 */
-      cursor: pointer; /* 鼠標懸停時顯示手型 */
-      width: 48px; /* 設置固定寬度 */
-      height: 48px; /* 設置固定高度 */
+      padding: 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 48px;
+      height: 48px;
+      -webkit-tap-highlight-color: transparent; /* 移除手機觸碰高亮 */
     }
     .glow-button img {
       width: 100%;
@@ -48,7 +49,7 @@
       transition: width 0.6s ease, height 0.6s ease;
     }
     .glow-button:hover::after {
-      width: 200px; /* 調整光暈範圍 */
+      width: 200px;
       height: 200px;
     }
     .ripple {
@@ -75,20 +76,18 @@
       z-index: -1;
       background: radial-gradient(circle, #1a1a2e 0%, #000000 100%);
     }
-    /* 確保body可捲動 */
     body {
       min-height: 100vh;
       overflow-y: auto;
+      touch-action: manipulation; /* 提升觸控響應性 */
     }
   </style>
 </head>
 <body class="py-12 px-6">
-  <!-- 星空背景畫布 -->
   <canvas id="starfield"></canvas>
 
   <div class="max-w-4xl mx-auto relative z-10">
     <div class="floating-card rounded-lg overflow-hidden flex flex-col md:flex-row" id="card">
-      <!-- 照片區塊 -->
       <div class="md:w-1/2 overflow-hidden">
         <img
           class="w-full h-full object-cover photo-hover"
@@ -96,7 +95,6 @@
           alt="尹云茹的照片"
         />
       </div>
-      <!-- 文字區塊 -->
       <div class="p-8 md:w-1/2 text-white">
         <h1 class="text-5xl font-bold text-gray-100 mb-4">尹云茹</h1>
         <p class="text-gray-300 mb-6 leading-relaxed text-lg">
@@ -122,22 +120,19 @@
     </div>
   </div>
 
-  <!-- 互動效果 JavaScript -->
   <script>
     const canvas = document.getElementById('starfield');
     const ctx = canvas.getContext('2d');
 
-    // 設置畫布大小
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // 星星數量與參數
     const stars = [];
     const numStars = 250;
-    let mouseX = 0;
-    let mouseY = 0;
+    let touchX = 0;
+    let touchY = 0;
+    let isTouching = false;
 
-    // 創建星星
     for (let i = 0; i < numStars; i++) {
       stars.push({
         x: Math.random() * canvas.width,
@@ -151,40 +146,73 @@
       stars[i].baseY = stars[i].y;
     }
 
-    // 監聽鼠標移動（僅星星偏移）
+    // 觸控事件處理
+    document.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      touchX = touch.clientX;
+      touchY = touch.clientY;
+      isTouching = true;
+    });
+
+    document.addEventListener('touchmove', (e) => {
+      e.preventDefault(); // 防止頁面滑動
+      const touch = e.touches[0];
+      touchX = touch.clientX;
+      touchY = touch.clientY;
+    }, { passive: false });
+
+    document.addEventListener('touchend', () => {
+      isTouching = false;
+    });
+
+    // 滑鼠事件（保留桌面支援）
     document.addEventListener('mousemove', (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
+      touchX = e.clientX;
+      touchY = e.clientY;
+      isTouching = true;
     });
 
     // 按鈕波紋效果
     const button = document.getElementById('insta-button');
-    button.addEventListener('click', (e) => {
+    function createRipple(e) {
       const rect = button.getBoundingClientRect();
       const ripple = document.createElement('span');
       ripple.classList.add('ripple');
       const diameter = Math.max(button.clientWidth, button.clientHeight);
       ripple.style.width = ripple.style.height = `${diameter}px`;
-      ripple.style.left = `${e.clientX - rect.left - diameter / 2}px`;
-      ripple.style.top = `${e.clientY - rect.top - diameter / 2}px`;
+
+      let x, y;
+      if (e.type === 'touchstart') {
+        const touch = e.touches[0];
+        x = touch.clientX - rect.left - diameter / 2;
+        y = touch.clientY - rect.top - diameter / 2;
+      } else {
+        x = e.clientX - rect.left - diameter / 2;
+        y = e.clientY - rect.top - diameter / 2;
+      }
+
+      ripple.style.left = `${x}px`;
+      ripple.style.top = `${y}px`;
       button.appendChild(ripple);
       setTimeout(() => ripple.remove(), 600);
-    });
+    }
+
+    button.addEventListener('touchstart', createRipple, { passive: true });
+    button.addEventListener('click', createRipple);
 
     // 動畫函數
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // 繪製星星並移動
       ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
       stars.forEach(star => {
-        const dx = mouseX - star.x;
-        const dy = mouseY - star.y;
+        const dx = touchX - star.x;
+        const dy = touchY - star.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const maxDistance = 150;
+        const maxDistance = 100; // 在手機上縮小互動範圍
         const force = Math.min(maxDistance / distance, 1) * 10;
 
-        if (distance < maxDistance) {
+        if (isTouching && distance < maxDistance) {
           star.x = star.baseX - dx * force * 0.02;
           star.y = star.baseY - dy * force * 0.02;
         } else {
@@ -196,14 +224,13 @@
         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // 星星連線效果
         stars.forEach(otherStar => {
           const dist = Math.sqrt((star.x - otherStar.x) ** 2 + (star.y - otherStar.y) ** 2);
-          if (dist < 100 && Math.sqrt((mouseX - star.x) ** 2 + (mouseY - star.y) ** 2) < 100) {
+          if (dist < 80 && distance < 100) { // 縮小連線範圍
             ctx.beginPath();
             ctx.moveTo(star.x, star.y);
             ctx.lineTo(otherStar.x, otherStar.y);
-            ctx.strokeStyle = `rgba(255, 255, 255, ${1 - dist / 100})`;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${1 - dist / 80})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
@@ -221,13 +248,11 @@
       requestAnimationFrame(animate);
     }
 
-    // 監聽窗口大小變化
     window.addEventListener('resize', () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     });
 
-    // 開始動畫
     animate();
   </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'923d62f97e455084',t:'MTc0MjU1OTQ1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
