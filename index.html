@@ -75,9 +75,14 @@
       z-index: -1;
       background: radial-gradient(circle, #1a1a2e 0%, #000000 100%);
     }
+    /* 確保body可捲動 */
+    body {
+      min-height: 100vh;
+      overflow-y: auto;
+    }
   </style>
 </head>
-<body class="min-h-screen flex items-center justify-center py-12 px-6 overflow-hidden">
+<body class="py-12 px-6">
   <!-- 星空背景畫布 -->
   <canvas id="starfield"></canvas>
 
@@ -225,5 +230,6 @@
     // 開始動畫
     animate();
   </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'923d62f97e455084',t:'MTc0MjU1OTQ1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
