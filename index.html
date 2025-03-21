@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>尹云茹的自我介紹</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* 卡片效果（移除傾斜和浮起，保留光暈） */
+    .floating-card {
+      background: rgba(14, 12, 12, 0.9);
+      box-shadow: 0 0 20px rgba(41, 2, 138, 0.5);
+      border-radius: 0.9rem; /* 設置圓角為 12px */
+    }
+    /* 照片效果（移除放大） */
+    .photo-hover {
+      transition: transform 0.3s ease; /* 添加平滑過渡效果 */
+    }
+    .photo-hover:hover {
+      transform: scale(1.05); /* 鼠標懸停時放大 5% */
+    }
+    /* 按鈕波紋效果 */
+    .glow-button {
+      position: relative;
+      overflow: hidden;
+      padding: 0; /* 移除內邊距，讓圖標居中 */
+      background: none; /* 移除背景色 */
+      border: none; /* 移除邊框 */
+      cursor: pointer; /* 鼠標懸停時顯示手型 */
+      width: 48px; /* 設置固定寬度 */
+      height: 48px; /* 設置固定高度 */
+    }
+    .glow-button img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .glow-button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.6s ease, height 0.6s ease;
+    }
+    .glow-button:hover::after {
+      width: 200px; /* 調整光暈範圍 */
+      height: 200px;
+    }
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+    /* 星空粒子背景 */
+    #starfield {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: radial-gradient(circle, #1a1a2e 0%, #000000 100%);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center py-12 px-6 overflow-hidden">
+  <!-- 星空背景畫布 -->
+  <canvas id="starfield"></canvas>
+
+  <div class="max-w-4xl mx-auto relative z-10">
+    <div class="floating-card rounded-lg overflow-hidden flex flex-col md:flex-row" id="card">
+      <!-- 照片區塊 -->
+      <div class="md:w-1/2 overflow-hidden">
+        <img
+          class="w-full h-full object-cover photo-hover"
+          src="https://scontent.ftpe15-1.fna.fbcdn.net/v/t39.30808-6/334950034_210445894863760_3234064819751882086_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=a5f93a&_nc_ohc=Z3NaIbx1ingQ7kNvgE3_rRh&_nc_oc=AdkS_x79nQaLTZHl07munOfOUq0k9Pp6AUiZeJ4XihHnqOqAcfzpMcenBL5nWoLdgqQ&_nc_zt=23&_nc_ht=scontent.ftpe15-1.fna&_nc_gid=CqbqXyHfgFb6AsiOnFLSMg&oh=00_AYEJGCWF_BmnM4y2WAPestVG8tcJCDzXNj626Slu57qjvA&oe=67E1F63F"
+          alt="尹云茹的照片"
+        />
+      </div>
+      <!-- 文字區塊 -->
+      <div class="p-8 md:w-1/2 text-white">
+        <h1 class="text-5xl font-bold text-gray-100 mb-4">尹云茹</h1>
+        <p class="text-gray-300 mb-6 leading-relaxed text-lg">
+          棗安你好，我是云云！<br />
+          我熱愛設計相關的事物，<br />
+          平常喜歡聽音樂、畫可愛的小東西。<br />
+          我是三分鐘熱度的人類，個性比較冷靜，<br />
+          講話很直白，邏輯可能有點跳躍。<br />
+          雖然臉看起來很厭世，但其實很好相處！<br />
+          希望未來能和大家多多交流、互相學習！
+        </p>
+        <button
+          onclick="window.open('https://www.instagram.com/lu.lux.16?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==', '_blank')"
+          class="glow-button"
+          id="insta-button"
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"
+            alt="Instagram Logo"
+          />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 互動效果 JavaScript -->
+  <script>
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+
+    // 設置畫布大小
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // 星星數量與參數
+    const stars = [];
+    const numStars = 250;
+    let mouseX = 0;
+    let mouseY = 0;
+
+    // 創建星星
+    for (let i = 0; i < numStars; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 1.5,
+        speed: Math.random() * 0.2 + 0.1,
+        baseX: 0,
+        baseY: 0,
+      });
+      stars[i].baseX = stars[i].x;
+      stars[i].baseY = stars[i].y;
+    }
+
+    // 監聽鼠標移動（僅星星偏移）
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    // 按鈕波紋效果
+    const button = document.getElementById('insta-button');
+    button.addEventListener('click', (e) => {
+      const rect = button.getBoundingClientRect();
+      const ripple = document.createElement('span');
+      ripple.classList.add('ripple');
+      const diameter = Math.max(button.clientWidth, button.clientHeight);
+      ripple.style.width = ripple.style.height = `${diameter}px`;
+      ripple.style.left = `${e.clientX - rect.left - diameter / 2}px`;
+      ripple.style.top = `${e.clientY - rect.top - diameter / 2}px`;
+      button.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    });
+
+    // 動畫函數
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 繪製星星並移動
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      stars.forEach(star => {
+        const dx = mouseX - star.x;
+        const dy = mouseY - star.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const maxDistance = 150;
+        const force = Math.min(maxDistance / distance, 1) * 10;
+
+        if (distance < maxDistance) {
+          star.x = star.baseX - dx * force * 0.02;
+          star.y = star.baseY - dy * force * 0.02;
+        } else {
+          star.x += (star.baseX - star.x) * 0.05;
+          star.y += (star.baseY - star.y) * 0.05;
+        }
+
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 星星連線效果
+        stars.forEach(otherStar => {
+          const dist = Math.sqrt((star.x - otherStar.x) ** 2 + (star.y - otherStar.y) ** 2);
+          if (dist < 100 && Math.sqrt((mouseX - star.x) ** 2 + (mouseY - star.y) ** 2) < 100) {
+            ctx.beginPath();
+            ctx.moveTo(star.x, star.y);
+            ctx.lineTo(otherStar.x, otherStar.y);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${1 - dist / 100})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        });
+
+        star.baseY += star.speed;
+        if (star.baseY > canvas.height) {
+          star.baseY = 0 - star.radius;
+          star.baseX = Math.random() * canvas.width;
+          star.x = star.baseX;
+          star.y = star.baseY;
+        }
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    // 監聽窗口大小變化
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    // 開始動畫
+    animate();
+  </script>
+</body>
+</html>
